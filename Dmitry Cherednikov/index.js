@@ -1,13 +1,27 @@
-function Menu() {
+// Menu
+
+function Menu(name) {
 	this.name = name;
+}
+
+Menu.prototype.getCalories = function() {
+	return this.calories;
+}
+
+Menu.prototype.getPrice = function() {
+	return this.price;
 }
 
 // Hamburger
 
 function Hamburger(size, stuffing) {
-	this.name = 'Hamburger';
-	this.size = size;
-	this.stuffing = stuffing;
+	var name = 'Hamburger';
+	Menu.call(this, name);
+
+	this.size = size.name;
+	this.stuffing = stuffing.name;
+	this.price = stuffing.price + size.price;
+	this.calories = stuffing.calories + size.calories;
 }
 
 Hamburger.SIZE_SMALL = {
@@ -41,7 +55,8 @@ Hamburger.STUFFING_POTATO = {
 	'calories': 10,
 }
 
-Hamburger.prototype = new Menu();
+Hamburger.prototype = Object.create(Menu.prototype);
+Hamburger.prototype.constructor = Hamburger;
 
 Hamburger.prototype.getStuffing = function() {
 	return this.stuffing;
@@ -51,20 +66,15 @@ Hamburger.prototype.getSize = function() {
 	return this.size;
 }
 
-Hamburger.prototype.getPrice = function() {
-	return this.stuffing.price + this.size.price;
-}
-
-Hamburger.prototype.getCalories = function() {
-	return this.stuffing.calories + this.size.calories;
-}
-
 // Salad
 
-function Salad(type, gr) {
-	Menu.call(this);
-	this.name = type.name;
-	this.amount = gr;
+function Salad(type, amount) {
+	var standart_amount = 100;
+	Menu.call(this, type.name);
+
+	this.amount = amount;
+	this.price = type.price / standart_amount * amount;
+	this.calories = type.calories / standart_amount * amount;
 }
 
 Salad.CAESAR = {
@@ -79,39 +89,14 @@ Salad.OLIVIER = {
 	'calories': 80,
 }
 
-Salad.prototype = new Menu();
-
-Salad.prototype.getPrice = function() {
-	var caesar_price = 100 / 100;
-	var olivier_price = 50 / 100;
-
-	if (this.name === 'Caesar') {
-		return this.amount * caesar_price;
-	}
-
-	if (this.name === 'Olivier') {
-		return this.amount * olivier_price;
-	}
-}
-
-Salad.prototype.getCalories = function() {
-	var caesar_calories = 20 / 100;
-	var olivier_calories = 80 / 100;
-
-	if (this.name === 'Caesar') {
-		return this.amount * caesar_calories;
-	}
-
-	if (this.name === 'Olivier') {
-		return this.amount * olivier_calories;
-	}
-}
+Salad.prototype = Object.create(Menu.prototype);
+Salad.prototype.constructor = Salad;
 
 // Drink
 
 function Drink(type) {
-	Menu.call(this);
-	this.name = type.name;
+	Menu.call(this, type.name);
+
 	this.price = type.price;
 	this.calories = type.calories;
 }
@@ -128,13 +113,8 @@ Drink.COFFEE = {
 	'calories': 20,
 }
 
-Drink.prototype.getPrice = function() {
-	return this.price;
-}
-
-Drink.prototype.getCalories = function() {
-	return this.calories;
-}
+Drink.prototype = Object.create(Menu.prototype);
+Drink.prototype.constructor = Drink;
 
 // Order
 
@@ -148,8 +128,8 @@ function Order() {
 Order.prototype.add = function(item) {
 	if (this.isOpen && item instanceof Menu) {
 		this.list.push(item);
-		this.price += item.getPrice();
-		this.calories += item.getCalories();
+		this.price += item.price;
+		this.calories += item.calories;
 	}
 }
 
@@ -157,8 +137,8 @@ Order.prototype.remove = function(item) {
 	var position = this.list.indexOf(item)
 	if (this.isOpen && position !== -1) {
 		this.list.splice(position, 1);
-		this.price -= item.getPrice();
-		this.calories -= item.getCalories();
+		this.price -= item.price;
+		this.calories -= item.calories;
 	}
 }
 
@@ -175,5 +155,5 @@ Order.prototype.showOrder = function() {
 }
 
 Order.prototype.checkout = function() {
-	this.isOpen = false;
+	this.isOpen = false; // or Object.freeze
 }
