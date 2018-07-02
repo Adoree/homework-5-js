@@ -116,6 +116,30 @@ Drink.COFFEE = {
 Drink.prototype = Object.create(Menu.prototype);
 Drink.prototype.constructor = Drink;
 
+// Breakfast
+
+function Breakfast() {
+	var name = 'Breakfast';
+	Menu.call(this, name);
+	
+	this.hamburger = new Hamburger(Hamburger.SIZE_SMALL, Hamburger.STUFFING_SALAD);
+	this.drink = new Drink(Drink.COFFEE);
+
+	this.price = this.hamburger.price + this.drink.price;
+	this.calories = this.hamburger.price + this.drink.calories;
+}
+
+Breakfast.prototype = Object.create(Menu.prototype);
+Breakfast.prototype.constructor = Breakfast;
+
+Breakfast.prototype.getDrink = function() {
+	return this.drink;
+}
+
+Breakfast.prototype.getHamburger = function() {
+	return this.hamburger;
+}
+
 // Order
 
 function Order() {
@@ -126,7 +150,7 @@ function Order() {
 }
 
 Order.prototype.add = function(item) {
-	if (this.isOpen && item instanceof Menu) {
+	if (this.isOpen && item instanceof Menu && this.list.indexOf(item) == -1) {
 		this.list.push(item);
 		this.price += item.price;
 		this.calories += item.calories;
